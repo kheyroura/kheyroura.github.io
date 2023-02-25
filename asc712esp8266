@@ -1,0 +1,46 @@
+#include<SoftwareSerial.h>
+
+#include <ArduinoOTA.h>
+
+#include <Arduino.h>
+#include<ACS712.h>
+SoftwareSerial ss(2,3);
+
+ int sensorPin =A0 ; // Connectez le capteur de courant à cette broche analogique
+
+ void setup() {
+  Serial.begin(9600);
+  ss.begin(115200);
+}
+
+void loop() {
+ 
+  float voltage = analogRead(sensorPin) * 5 / 1023.0; // Lire la tension analogique sur la broche A0
+  float current = (voltage - 2.495) / 0.066; // Calculer le courant en fonction de la tension mesurée
+  float power = 220 * current;// Calcul de la puissance en utilisant la valeur fixe de la tension
+  float Wattage = power+20; //Observed 18-20 Watt when no load was connected, so substracting offset value to get real consumption.
+//  Serial.print("voltage: ");
+ // Serial.print(voltage);
+  //Serial.println(" V"); 
+  //Serial.print("Courant: ");
+//  Serial.print(current);
+//  Serial.println(" A");
+//   Serial.print(power);
+//  Serial.println(" W");
+//    Serial.print(Wattage);
+//  Serial.println(" W'");
+
+//   envoi de la valeur de courant via la communication série logicielle
+String sendToESP = "";
+ sendToESP += voltage;
+  sendToESP += ";";
+  sendToESP += current;
+  sendToESP += ";";
+  sendToESP += power;
+   sendToESP += ";";
+  sendToESP += Wattage;
+  ss.println(sendToESP);
+    
+
+  delay(1000); // Attendre une seconde avant la prochaine lecture
+}
